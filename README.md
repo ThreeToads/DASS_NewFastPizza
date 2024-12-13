@@ -18,8 +18,8 @@
    Клонируйте репозиторий проекта на ваш локальный компьютер:
 
    ```bash
-   git clone https://github.com/yourusername/yourprojectname.git
-   cd yourprojectname
+   git clone https://github.com/ThreeToads/DASS_NewFastPizza.git
+   cd NewFastPizza
 2. **Создание виртуального окружения**
    ```bash
    python -m venv venv
