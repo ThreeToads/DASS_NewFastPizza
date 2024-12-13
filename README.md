@@ -34,9 +34,14 @@
    ```bash
    python manage.py makemigrations
    python manage.py migrate
-6. **Запуск сервера разработки**
+6. **Создание суперюзера**
+   ```bash
+   python manage.py createsuperuser
+
+7. **Запуск сервера разработки**
    ```bash
    python manage.py runserver
+8. Для тестирования работы функционала испольщуйте переход по адресу: http://127.0.0.1:8000/swagger и http://127.0.0.1:8000/admin
 
  
 
