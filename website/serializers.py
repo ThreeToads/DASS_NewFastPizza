@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import User
+from .models import User, ReadyForDeliveryOrder
 
 
 class RegisterSerializer(serializers.ModelSerializer):
@@ -19,3 +19,13 @@ class RegisterSerializer(serializers.ModelSerializer):
 class LoginSerializer(serializers.Serializer):
     email = serializers.EmailField()
     password = serializers.CharField(write_only=True)
+
+
+class ReadyForDeliveryOrderSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ReadyForDeliveryOrder
+        fields = ['id', 'order', 'driver', 'delivered_at']
+
+
+class MarkAsDeliveredSerializer(serializers.Serializer):
+    order_id = serializers.IntegerField()

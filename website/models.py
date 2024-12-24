@@ -85,5 +85,115 @@ class Drivers(models.Model):
         return self.name
 
 
+class Menu(models.Model):
+    name = models.CharField(
+        max_length=255,
+        verbose_name="Название блюда",
+    )
+    description = models.TextField(
+        verbose_name="Описание",
+    )
+    price = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        verbose_name="Цена",
+    )
+    image = models.ImageField(
+        upload_to='menu_photos/',
+        verbose_name="Фотография блюда",
+    )
+
+    class Meta:
+        verbose_name = "Блюдо"
+        verbose_name_plural = "Меню"
+
+    def __str__(self):
+        return self.name
 
 
+class Cart(models.Model):
+    user = models.ForeignKey(
+        Clients,
+        on_delete=models.CASCADE,
+        related_name='cart',
+        verbose_name="Пользователь",
+    )
+    menu_item = models.ForeignKey(
+        Menu,
+        on_delete=models.CASCADE,
+        related_name='cart_items',
+        verbose_name="Блюдо",
+    )
+    quantity = models.PositiveIntegerField(
+        default=1,
+        verbose_name="Количество",
+    )
+
+    class Meta:
+        verbose_name = "Корзина"
+        verbose_name_plural = "Корзины"
+
+    def __str__(self):
+        return f"{self.user.email} - {self.menu_item.name} (x{self.quantity})"
+
+
+class Order(models.Model):
+    user = models.ForeignKey(
+        Clients,
+        on_delete=models.CASCADE,
+        related_name='orders',
+        verbose_name="Пользователь",
+    )
+    items = models.ManyToManyField(
+        Cart,
+        related_name='orders',
+        verbose_name='Содержимое заказа'
+    )
+    created_at = models.DateTimeField(
+        auto_now_add=True,
+        verbose_name="Дата создания",
+    )
+    is_ready_for_delivery = models.BooleanField(
+        default=False,
+        verbose_name="Готов к отправке",
+    )
+    is_delivered = models.BooleanField(
+        default=False,
+        verbose_name="Доставлен",
+    )
+
+    class Meta:
+        verbose_name = "Заказ"
+        verbose_name_plural = "Заказы"
+
+    def __str__(self):
+        return f"Заказ #{self.id} от {self.user.email}"
+
+
+class ReadyForDeliveryOrder(models.Model):
+    order = models.OneToOneField(
+        Order,
+        on_delete=models.CASCADE,
+        related_name='ready_for_delivery',
+        verbose_name="Заказ",
+    )
+    driver = models.ForeignKey(
+        Drivers,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='deliveries',
+        verbose_name="Водитель",
+    )
+    delivered_at = models.DateTimeField(
+        null=True,
+        blank=True,
+        verbose_name="Дата доставки",
+    )
+
+    class Meta:
+        verbose_name = "Готовый к доставке заказ"
+        verbose_name_plural = "Готовые к доставке заказы"
+
+    def __str__(self):
+        return f"Готовый к доставке заказ #{self.order.id}"
