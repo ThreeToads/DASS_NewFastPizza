@@ -14,8 +14,8 @@ urlpatterns = [
                   path('api/register/', views.RegisterClientAPIView.as_view(), name='register_client'),
                   path('api/login/', views.LoginAPIView.as_view(), name='login_client'),
                   path('api/login/staff/', views.LoginMenegerDriverAPIView.as_view(), name='login_staff'),
-                  path('api/menu', views.MenuViewSet.as_view(), name='cart-total-price'),
-
+                  path('api/menu', views.MenuViewSet.as_view(), name='menu'),
+                  path('cart/create', views.CartViewSet.as_view({'post': 'create'}), name='cart-total-price'),
                   path('cart_total/total_price/', views.CartTotalPriceView.as_view(), name='cart-total-price'),
                   path('cart/clear/', views.CartViewSet.as_view({'delete': 'clear_cart'}), name='cart-clear'),
                   path('api/order/', views.OrderViewSet.as_view({'get': 'list', 'post': 'create'}),

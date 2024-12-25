@@ -113,6 +113,14 @@ class Cart(models.Model):
         """Подсчитывает общую стоимость данного блюда в корзине."""
         return self.quantity * self.menu_item.price
 
+    @classmethod
+    def get_cart_for_user(cls, user):
+        return cls.objects.filter(user=user)
+
+    @classmethod
+    def clear_cart_for_user(cls, user):
+        return cls.objects.filter(user=user).delete()
+
 
 class Order(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='orders', verbose_name="Пользователь")
@@ -120,6 +128,12 @@ class Order(models.Model):
     created_at = models.DateTimeField(auto_now_add=True, verbose_name="Дата создания")
     is_ready_for_delivery = models.BooleanField(default=False, verbose_name="Готов к отправке")
     is_delivered = models.BooleanField(default=False, verbose_name="Доставлен")
+    status_choices = [
+        ('waiting', 'В ожидании'),
+        ('ready', 'Готов к отправке'),
+        ('delivered', 'Доставлен')
+    ]
+    status = models.CharField(max_length=10, choices=status_choices, default='waiting', verbose_name="Статус")
 
     class Meta:
         verbose_name = "Заказ"
@@ -127,3 +141,6 @@ class Order(models.Model):
 
     def __str__(self):
         return f"Заказ #{self.id} от {self.user.email}"
+
+    def total_price(self):
+        return sum(item.total_price for item in self.items.all())

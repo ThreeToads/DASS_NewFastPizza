@@ -134,7 +134,7 @@ class CartViewSet(viewsets.ModelViewSet):
             cart_item.quantity = int(quantity)
 
         cart_item.save()
-        return Response(models.CartSerializer(cart_item).data, status=status.HTTP_201_CREATED)
+        return Response(serializers.CartSerializer(cart_item).data, status=status.HTTP_201_CREATED)
 
     @action(detail=False, methods=['delete'], url_path='clear')
     def clear_cart(self, request):
@@ -174,17 +174,16 @@ class OrderViewSet(viewsets.ModelViewSet):
         return models.Order.objects.filter(user=self.request.user)
 
     def create(self, request, *args, **kwargs):
-        user = request.user
-        cart_items = models.Cart.objects.filter(user=user)
-
+        cart_items = models.Cart.objects.filter(user=request.user)
         if not cart_items.exists():
             return Response({"detail": "Корзина пуста."}, status=status.HTTP_400_BAD_REQUEST)
 
-        order = models.Order.objects.create(user=user)
-        order.items.set(cart_items)
+        order = models.Order.objects.create(user=request.user)
+        for cart_item in cart_items:
+            order.items.add(cart_item)
         order.save()
 
-        # Clear the cart after creating the order
+        # Очистить корзину после оформления заказа
         cart_items.delete()
 
         return Response(serializers.OrderSerializer(order).data, status=status.HTTP_201_CREATED)
@@ -192,21 +191,19 @@ class OrderViewSet(viewsets.ModelViewSet):
     @action(detail=True, methods=['patch'], url_path='ready')
     def mark_as_ready(self, request, pk=None):
         order = self.get_object()
-
         if request.user.role != 'manager':
             return Response({"detail": "Доступ запрещен."}, status=status.HTTP_403_FORBIDDEN)
 
-        order.is_ready_for_delivery = True
+        order.status = 'ready'
         order.save()
         return Response({"detail": "Заказ готов к отправке."}, status=status.HTTP_200_OK)
 
     @action(detail=True, methods=['patch'], url_path='delivered')
     def mark_as_delivered(self, request, pk=None):
         order = self.get_object()
-
         if request.user.role != 'driver':
             return Response({"detail": "Доступ запрещен."}, status=status.HTTP_403_FORBIDDEN)
 
-        order.is_delivered = True
+        order.status = 'delivered'
         order.save()
-        return Response({"detail": "Заказ отмечен как доставленный."}, status=status.HTTP_200_OK)
+        return Response({"detail": "Заказ доставлен."}, status=status.HTTP_200_OK)
