@@ -184,7 +184,7 @@ class OrderViewSet(viewsets.ModelViewSet):
         order.save()
 
         # Очистить корзину после оформления заказа
-        cart_items.delete()
+        #cart_items.delete()
 
         return Response(serializers.OrderSerializer(order).data, status=status.HTTP_201_CREATED)
 
@@ -198,6 +198,11 @@ class OrderViewSet(viewsets.ModelViewSet):
         order.save()
         return Response({"detail": "Заказ готов к отправке."}, status=status.HTTP_200_OK)
 
+    @extend_schema(
+        request=None,
+        responses=serializers.OrderDeliveredSerializer,
+        description="Отмечает заказ как доставленный. Доступно только для водителей."
+    )
     @action(detail=True, methods=['patch'], url_path='delivered')
     def mark_as_delivered(self, request, pk=None):
         order = self.get_object()
@@ -205,5 +210,7 @@ class OrderViewSet(viewsets.ModelViewSet):
             return Response({"detail": "Доступ запрещен."}, status=status.HTTP_403_FORBIDDEN)
 
         order.status = 'delivered'
+        order.is_delivered = True
         order.save()
-        return Response({"detail": "Заказ доставлен."}, status=status.HTTP_200_OK)
+        serializer = serializers.OrderDeliveredSerializer(order)
+        return Response(serializer.data, status=status.HTTP_200_OK)

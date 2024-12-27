@@ -73,6 +73,13 @@ class Drivers(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='driver_profile', default=None)
     name = models.CharField(max_length=255)
     email = models.EmailField(unique=True)
+    status_choices = [
+        ('on_the_road', 'В пути'),
+        ('free', 'Свободен'),
+        ('in_filial_1', 'В филиале №1'),
+        ('in_filial_2', 'В филиале №2'),
+    ]
+    status = models.CharField(max_length=15, choices=status_choices, default='free', verbose_name="Статус водителя")
 
     class Meta:
         verbose_name = 'Водитель'
@@ -134,6 +141,7 @@ class Order(models.Model):
         ('delivered', 'Доставлен')
     ]
     status = models.CharField(max_length=10, choices=status_choices, default='waiting', verbose_name="Статус")
+    address = models.CharField(max_length=100, default='Адрес не указан', verbose_name='Адрес')
 
     class Meta:
         verbose_name = "Заказ"

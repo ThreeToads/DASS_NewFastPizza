@@ -32,8 +32,8 @@ class ManagerAdmin(admin.ModelAdmin):
 
 @admin.register(Drivers)
 class DriverAdmin(admin.ModelAdmin):
-    list_display = ('name', 'email',)
-    search_fields = ('name', 'email')
+    list_display = ('name', 'email', 'status')
+    search_fields = ('name', 'email', 'status')
 
 
 @admin.register(Menu)
@@ -48,7 +48,7 @@ class CartAdmin(admin.ModelAdmin):
 
 @admin.register(Order)
 class OrderAdmin(admin.ModelAdmin):
-    list_display = ['user', 'created_at', 'is_ready_for_delivery', 'is_delivered']
+    list_display = ['user', 'created_at', 'is_ready_for_delivery', 'is_delivered', 'address']
     list_filter = ['is_ready_for_delivery', 'is_delivered']
 
 
